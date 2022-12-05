@@ -126,3 +126,4 @@ const ts = new TreeStore(items);
 // console.log(ts.getChildren(2));
 // console.log(ts.getAllChildren(2))
 // console.log(ts.getAllParents(7));
+
