@@ -15,15 +15,10 @@ class TreeNode {
 class TreeStore {
     items;
     root;
+    sortedItems = [];
     constructor(items) {
         this.items = items;
-        // find and define root
-        for (const item of items) {
-            if (item['parent'] === 'root') {
-                this.root = new TreeNode(item['id'], item);
-                break;
-            }
-        }
+        this.sortItems(items);
         // fill tree
         for (const item of items) {
             this.fill(item['parent'], item['id'], item);
@@ -62,6 +57,41 @@ class TreeStore {
                 return node;
         }
         return undefined;
+    }
+    //sort
+    sortItems(items) {
+        if (items.length) {
+            // find and define root
+            for (let i = 0; i < items.length; i++) {
+                if (items[i]['parent'] === 'root') {
+                    this.root = new TreeNode(items[i]['id'], items[i]);
+                    this.sortedItems.push(items[i]);
+                    items.splice(i, 1);
+                    break;
+                }
+            }
+            let index = 0;
+            while (items.length > 0 && index < this.sortedItems.length) {
+                const cycle = () => {
+                    const newItems = [...items2];
+                    for (let i = 0; i < newItems.length; i++) {
+                        if (newItems[i].parent == this.sortedItems[index]['id']) {
+                            this.sortedItems.push(newItems[i]);
+                            items2.splice(i, 1);
+                            index--;
+                            break;
+                            // reassign array after each splice
+                        }
+                    }
+                };
+                cycle();
+                index++;
+            }
+            return true;
+        }
+        else {
+            return false;
+        }
     }
     // task methods
     getAll() {
@@ -106,9 +136,17 @@ const items = [
     { id: 7, parent: 4, type: null },
     { id: 8, parent: 4, type: null },
 ];
-
-const ts = new TreeStore(items);
-
+const items2 = [
+    { id: 7, parent: 4, type: null },
+    { id: 8, parent: 4, type: null },
+    { id: 6, parent: 2, type: 'test' },
+    { id: 3, parent: 1, type: 'test' },
+    { id: 4, parent: 2, type: 'test' },
+    { id: 2, parent: 1, type: 'test' },
+    { id: 5, parent: 2, type: 'test' },
+    { id: 1, parent: 'root' },
+];
+const ts = new TreeStore(items2);
 // console.log(ts.getAll())
 // console.log(ts.getItem(7))
 // console.log(ts.getChildren(4));
