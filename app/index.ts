@@ -15,7 +15,7 @@ class TreeStore {
     constructor(protected items: Array<object>) {
         this.sortItems(items)
         // fill tree
-        for (const item of items) {
+        for (const item of this.sortedItems) {
             this.fill(item['parent'], item['id'], item)
         }
     }
@@ -40,7 +40,7 @@ class TreeStore {
     // add node to TreeStore
     fill(parentId: number | string, id: number | string, value: any = id) {
         for (let node of this.preOrder()) {
-            if (node.id == parentId) {
+            if (String(node.id) === String(parentId)) {
                 node.children.push(new TreeNode(id, value, node));
                 return true;
             }
@@ -50,13 +50,14 @@ class TreeStore {
     // find item
     find(id: number | string) {
         for (let node of this.preOrder()) {
-            if (node.id == id) return node;
+            if (String(node.id) === String(id)) return node;
         }
         return undefined;
     }
 
     //sort
-    protected sortItems(items: Array<object>) {
+    protected sortItems(itemsInitial: Array<object>) {
+        const items = [...itemsInitial]
         if (items.length) {
             // find and define root
             for (let i = 0; i < items.length; i++) {
@@ -70,11 +71,11 @@ class TreeStore {
             let index = 0;
             while (items.length > 0 && index < this.sortedItems.length) {
                 const cycle = () => {
-                    const newItems = [...items2];
+                    const newItems = [...items];
                     for (let i = 0; i < newItems.length; i++) {
-                        if (newItems[i].parent == this.sortedItems[index]['id']) {
+                        if (newItems[i]['parent'] == this.sortedItems[index]['id']) {
                             this.sortedItems.push(newItems[i]);
-                            items2.splice(i, 1);
+                            items.splice(i, 1);
                             index--
                             break
                             // reassign array after each splice
@@ -133,17 +134,7 @@ const items = [
     { id: 7, parent: 4, type: null },
     { id: 8, parent: 4, type: null },
 ];
-const items2 = [
-    { id: 7, parent: 4, type: null },
-    { id: 8, parent: 4, type: null },
-    { id: 6, parent: 2, type: 'test' },
-    { id: 3, parent: 1, type: 'test' },
-    { id: 4, parent: 2, type: 'test' },
-    { id: 2, parent: 1, type: 'test' },
-    { id: 5, parent: 2, type: 'test' },
-    { id: 1, parent: 'root' },
-];
-const ts = new TreeStore(items2);
+const ts = new TreeStore(items);
 // console.log(ts.getAll())
 // console.log(ts.getItem(7))
 // console.log(ts.getChildren(4));
